@@ -17,7 +17,7 @@ let animationDirection = 1;
 const fps = 30;
 const maxNumberOfPoints = 2000;
 const minMultiplier = 2;
-const maxMultiplier = 200;
+const maxMultiplier = 2000;
 const maxAnimationSpeed = fps;
 const dotSize = 8;
 const circleStrokeWidth = 2;
@@ -50,6 +50,10 @@ const lineColourPalettes = [
   ["d9ed92", "b5e48c", "99d98c", "76c893", "52b69a", "34a0a4", "168aad", "1a759f", "1e6091", "184e77"],
   // https://coolors.co/f8f9fa-e9ecef-dee2e6-ced4da-adb5bd-6c757d-495057-343a40-212529
   ["f8f9fa", "e9ecef", "dee2e6", "ced4da", "adb5bd", "6c757d", "495057", "343a40", "212529"],
+  // https://coolors.co/390099-9e0059-ff0054-ff5400-ffbd00
+  ["390099", "9e0059", "ff0054", "ff5400", "ffbd00"],
+  // https://coolors.co/ff595e-ffca3a-8ac926-1982c4-6a4c93
+  ["ff595e", "ffca3a", "8ac926", "1982c4", "6a4c93"],
 ];
 
 function setup() {
@@ -204,7 +208,7 @@ function createInputs() {
   controlY += 16;
   createTextElement("p", "Multiplier", controlX, controlY);
   controlY += controlYSpacing / 1.5;
-  multiplierSlider = createSlider(minMultiplier, maxMultiplier, minMultiplier, 0.01);
+  multiplierSlider = createSlider(1, maxMultiplier, minMultiplier, 1);
   multiplierSlider.position(controlX, controlY);
   multiplierSlider.style("width", "120px");
   multiplierSlider.input(handleMultiplierChanged);
