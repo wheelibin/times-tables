@@ -1,19 +1,21 @@
+// Input references
 let numberOfPointsSlider;
 let multiplierSlider;
 let paletteSlider;
 let startPositionSlider;
-
 let showNumberCheckbox;
 let showDotsCheckbox;
+let animateButton;
+
+// App variables
 let circleSize;
 let circleX;
 let circleY;
-let animateButton;
-
 let multiplier = 2;
 let startPosition = 1;
 let animationDirection = 1;
 
+// App constants
 const fps = 30;
 const maxNumberOfPoints = 2000;
 const minMultiplier = 2;
@@ -63,16 +65,6 @@ function setup() {
   createInputs();
 }
 
-function getCoord(u, mod, radiusMod = 0) {
-  const startPositionMultipliers = [2, 1.5, 1, 0.5];
-  const a = (2 * Math.PI * u) / mod - Math.PI * startPositionMultipliers[startPosition - 1];
-  const circleRadius = circleSize / 2;
-  return {
-    x: circleX + (circleRadius + radiusMod) * Math.cos(a),
-    y: circleY + (circleRadius + radiusMod) * Math.sin(a),
-  };
-}
-
 function draw() {
   background(backgroundColour);
   stroke(backgroundColour);
@@ -99,7 +91,7 @@ function draw() {
   // display input values
   fill(textColour);
   text(numberOfPoints, 160, numberOfPointsSlider.position().y + 14);
-  text(Number(multiplier).toFixed(3), 160, multiplierSlider.position().y + 14);
+  text(Math.round(multiplier, 3), 160, multiplierSlider.position().y + 14);
   text(colourPaletteIndex, 160, paletteSlider.position().y + 14);
   text(animationSpeed, 160, animationSpeedSlider.position().y + 14);
   text(startPosition, 160, startPositionSlider.position().y + 14);
@@ -120,15 +112,15 @@ function draw() {
     for (let i = 0; i < numberOfPoints; i++) {
       if (showDotsCheckbox.checked()) {
         fill("rgb(255,0,0)");
-        const dotCoord = getCoord(i, numberOfPoints);
+        const dotCoord = getCoordsForValue(i, numberOfPoints);
         console.log(dotCoord);
         circle(dotCoord.x, dotCoord.y, dotSize);
       }
 
       if (showNumberCheckbox.checked()) {
-        const textCoord = getCoord(i, numberOfPoints, 16);
+        const textCoord = getCoordsForValue(i, numberOfPoints, 16);
         fill(textColour);
-        text(i, textCoord.x, textCoord.y);
+        text(i, textCoord.x - 6, textCoord.y + 6);
       }
     }
   }
@@ -147,12 +139,22 @@ function draw() {
 
     stroke(`#${lineColours[colourIndex]}`);
     strokeWeight(lineStrokeWidth);
-    const lineFrom = getCoord(i * multiplier, numberOfPoints);
-    const lineTo = getCoord(i, numberOfPoints);
+    const lineFrom = getCoordsForValue(i * multiplier, numberOfPoints);
+    const lineTo = getCoordsForValue(i, numberOfPoints);
     line(lineFrom.x, lineFrom.y, lineTo.x, lineTo.y);
 
     linesForColourCount++;
   }
+}
+
+function getCoordsForValue(value, modulus, radiusAdj = 0) {
+  const startPositionMultipliers = [2, 1.5, 1, 0.5];
+  const a = (2 * Math.PI * value) / modulus - Math.PI * startPositionMultipliers[startPosition - 1];
+  const circleRadius = circleSize / 2;
+  return {
+    x: circleX + (circleRadius + radiusAdj) * Math.cos(a),
+    y: circleY + (circleRadius + radiusAdj) * Math.sin(a),
+  };
 }
 
 function handleWindowResized() {
@@ -192,14 +194,18 @@ function createTextElement(element, text, x, y, color = textColour) {
 
 function createInputs() {
   const controlX = 32;
-  let controlY = 16;
+  let controlY = 8;
   const controlYSpacing = 64;
+
+  createTextElement("h1", "Modular Multiplication", controlX, controlY, textColour);
+  controlY += controlYSpacing;
 
   createTextElement("h3", "Maths", controlX, controlY, headingColour);
   controlY += controlYSpacing / 1.5;
 
   createTextElement("p", "Number of points", controlX, controlY);
   controlY += controlYSpacing / 1.5;
+
   numberOfPointsSlider = createSlider(10, maxNumberOfPoints, 200, 1);
   numberOfPointsSlider.position(controlX, controlY);
   numberOfPointsSlider.style("width", "120px");
@@ -208,7 +214,8 @@ function createInputs() {
   controlY += 16;
   createTextElement("p", "Multiplier", controlX, controlY);
   controlY += controlYSpacing / 1.5;
-  multiplierSlider = createSlider(1, maxMultiplier, minMultiplier, 1);
+
+  multiplierSlider = createSlider(minMultiplier, maxMultiplier, minMultiplier, 1);
   multiplierSlider.position(controlX, controlY);
   multiplierSlider.style("width", "120px");
   multiplierSlider.input(handleMultiplierChanged);
