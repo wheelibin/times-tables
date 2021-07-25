@@ -3,6 +3,7 @@ let numberOfPointsSlider;
 let multiplierSlider;
 let paletteSlider;
 let startPositionSlider;
+let lineWidthSlider;
 let showNumberCheckbox;
 let showDotsCheckbox;
 let animateButton;
@@ -14,6 +15,7 @@ let circleY;
 let multiplier = 2;
 let startPosition = 1;
 let animationDirection = 1;
+let lineWidth = 1;
 
 // App constants
 const fps = 30;
@@ -22,8 +24,7 @@ const minMultiplier = 2;
 const maxMultiplier = 2000;
 const maxAnimationSpeed = fps;
 const dotSize = 8;
-const circleStrokeWidth = 2;
-const lineStrokeWidth = 0.75;
+const circleStrokeWidth = 1;
 
 // Colours
 const backgroundColour = "#292929";
@@ -72,8 +73,9 @@ function draw() {
   textSize(16);
 
   const numberOfPoints = numberOfPointsSlider.value();
-  const colourPaletteIndex = paletteSlider.value();
   const animationSpeed = animationSpeedSlider.value();
+  const colourPaletteIndex = paletteSlider.value() - 1;
+  const palette = lineColourPalettes[colourPaletteIndex];
 
   if (isLooping()) {
     let increment = (animationSpeed / (fps * 0.5)) * animationDirection;
@@ -102,9 +104,9 @@ function draw() {
   circleY = windowHeight / 2;
 
   fill(circleBackgroundColour);
-  stroke(circleStrokeColour);
-  strokeWeight(circleStrokeWidth);
-  circle(circleX, circleY, circleSize);
+  stroke(`#${palette[palette.length - 1]}`);
+  strokeWeight(lineWidth);
+  circle(circleX, circleY, circleSize + lineWidth * 2);
   strokeWeight(1);
 
   // dots
@@ -126,8 +128,7 @@ function draw() {
   }
 
   // now plot the times table
-  const lineColours = lineColourPalettes[paletteSlider.value() - 1];
-  const linesPerColour = numberOfPoints > lineColours.length ? Math.floor(numberOfPoints / lineColours.length) : 1;
+  const linesPerColour = numberOfPoints > palette.length ? Math.floor(numberOfPoints / palette.length) : 1;
   let colourIndex = 0;
   let linesForColourCount = 0;
 
@@ -137,8 +138,8 @@ function draw() {
       linesForColourCount = 0;
     }
 
-    stroke(`#${lineColours[colourIndex]}`);
-    strokeWeight(lineStrokeWidth);
+    stroke(`#${palette[colourIndex]}`);
+    strokeWeight(lineWidth);
     const lineFrom = getCoordsForValue(i * multiplier, numberOfPoints);
     const lineTo = getCoordsForValue(i, numberOfPoints);
     line(lineFrom.x, lineFrom.y, lineTo.x, lineTo.y);
@@ -172,6 +173,11 @@ function handleMultiplierChanged() {
 
 function handleStartPositionChanged() {
   startPosition = startPositionSlider.value();
+  redraw();
+}
+
+function handleLineWidthChanged() {
+  lineWidth = lineWidthSlider.value();
   redraw();
 }
 
@@ -220,6 +226,15 @@ function createInputs() {
   multiplierSlider.style("width", "120px");
   multiplierSlider.input(handleMultiplierChanged);
 
+  controlY += 16;
+  createTextElement("p", "Start Position", controlX, controlY);
+  controlY += controlYSpacing / 1.5;
+
+  startPositionSlider = createSlider(1, 4, startPosition, 1);
+  startPositionSlider.position(controlX, controlY);
+  startPositionSlider.style("width", "120px");
+  startPositionSlider.input(handleStartPositionChanged);
+
   controlY += controlYSpacing / 2;
   createTextElement("h3", "Visuals", controlX, controlY, headingColour);
   controlY += controlYSpacing - 4;
@@ -244,12 +259,12 @@ function createInputs() {
   showDotsCheckbox.changed(handleParamsChanged);
 
   controlY += 16;
-  createTextElement("p", "Start Position", controlX, controlY);
+  createTextElement("p", "Line Width", controlX, controlY);
   controlY += controlYSpacing / 1.5;
-  startPositionSlider = createSlider(1, 4, startPosition, 1);
-  startPositionSlider.position(controlX, controlY);
-  startPositionSlider.style("width", "120px");
-  startPositionSlider.input(handleStartPositionChanged);
+  lineWidthSlider = createSlider(1, 20, 1, 1);
+  lineWidthSlider.position(controlX, controlY);
+  lineWidthSlider.style("width", "120px");
+  lineWidthSlider.input(handleLineWidthChanged);
 
   controlY += 16;
   createTextElement("p", "Colour Palette", controlX, controlY);
