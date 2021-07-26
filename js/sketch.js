@@ -18,7 +18,7 @@ let animationDirection = 1;
 let lineWidth = 1;
 
 // App constants
-const fps = 30;
+const fps = 60;
 const maxNumberOfPoints = 2000;
 const minMultiplier = 2;
 const maxMultiplier = 2000;
@@ -57,6 +57,14 @@ const lineColourPalettes = [
   ["390099", "9e0059", "ff0054", "ff5400", "ffbd00"],
   // https://coolors.co/ff595e-ffca3a-8ac926-1982c4-6a4c93
   ["ff595e", "ffca3a", "8ac926", "1982c4", "6a4c93"],
+  // https://coolors.co/c9cba3-ffe1a8-e26d5c-723d46-472d30
+  ["c9cba3", "ffe1a8", "e26d5c", "723d46", "472d30"],
+  // https://coolors.co/247ba0-70c1b3-b2dbbf-f3ffbd-ff1654
+  ["247ba0", "70c1b3", "b2dbbf", "f3ffbd", "ff1654"],
+  // https://coolors.co/ffffff-84dcc6-a5ffd6-ffa69e-ff686b
+  ["ffffff", "84dcc6", "a5ffd6", "ffa69e", "ff686b"],
+  // https://coolors.co/f7b267-f79d65-f4845f-f27059-f25c54
+  ["f7b267", "f79d65", "f4845f", "f27059", "f25c54"],
 ];
 
 function setup() {
@@ -78,7 +86,7 @@ function draw() {
   const palette = lineColourPalettes[colourPaletteIndex];
 
   if (isLooping()) {
-    let increment = (animationSpeed / (fps * 0.5)) * animationDirection;
+    let increment = animationSpeed * (deltaTime * 0.001) * animationDirection;
     const newMultiplier = multiplier + increment;
     if (newMultiplier >= maxMultiplier) {
       animationDirection = -1;
@@ -88,12 +96,17 @@ function draw() {
     }
 
     multiplier += increment;
+
+    // Draw FPS (rounded to 2 decimal places) at the bottom left of the screen
+    fill(headingColour);
+    stroke(0);
+    text("FPS: " + frameRate().toFixed(2), 10, height - 10);
   }
 
   // display input values
   fill(textColour);
   text(numberOfPoints, 160, numberOfPointsSlider.position().y + 14);
-  text(Math.round(multiplier, 3), 160, multiplierSlider.position().y + 14);
+  text(multiplier.toFixed(3), 160, multiplierSlider.position().y + 14);
   text(colourPaletteIndex, 160, paletteSlider.position().y + 14);
   text(animationSpeed, 160, animationSpeedSlider.position().y + 14);
   text(startPosition, 160, startPositionSlider.position().y + 14);
@@ -104,7 +117,8 @@ function draw() {
   circleY = windowHeight / 2;
 
   fill(circleBackgroundColour);
-  stroke(`#${palette[palette.length - 1]}`);
+  stroke(circleStrokeColour);
+  // stroke(`#${palette[palette.length - 1]}`);
   strokeWeight(lineWidth);
   circle(circleX, circleY, circleSize + lineWidth * 2);
   strokeWeight(1);
@@ -115,7 +129,6 @@ function draw() {
       if (showDotsCheckbox.checked()) {
         fill("rgb(255,0,0)");
         const dotCoord = getCoordsForValue(i, numberOfPoints);
-        console.log(dotCoord);
         circle(dotCoord.x, dotCoord.y, dotSize);
       }
 
@@ -142,7 +155,21 @@ function draw() {
     strokeWeight(lineWidth);
     const lineFrom = getCoordsForValue(i * multiplier, numberOfPoints);
     const lineTo = getCoordsForValue(i, numberOfPoints);
-    line(lineFrom.x, lineFrom.y, lineTo.x, lineTo.y);
+    if (lineFrom.x !== lineTo.x || lineFrom.y !== lineFrom.y) {
+      line(lineFrom.x, lineFrom.y, lineTo.x, lineTo.y);
+      // fill("rgba(0,0,0,0)");
+      // const curvature = 500 * noise(i);
+      // curve(
+      //   lineFrom.x - curvature,
+      //   lineFrom.y - curvature,
+      //   lineFrom.x,
+      //   lineFrom.y,
+      //   lineTo.x,
+      //   lineTo.y,
+      //   lineTo.x + curvature,
+      //   lineTo.y + curvature
+      // );
+    }
 
     linesForColourCount++;
   }
